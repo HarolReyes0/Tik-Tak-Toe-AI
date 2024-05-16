@@ -37,5 +37,5 @@ class Board:
             """
             self.__board[coordinates] = symbol
 
-      def __get_board(self):
+      def get_board(self):
             return self.__board

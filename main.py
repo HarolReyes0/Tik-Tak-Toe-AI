@@ -1,11 +1,13 @@
-from game_table import board
-
+from Agents.GameAgents import RandomPlayer
+from GameEnviroment.GamePlay import play
 
 def main():
-    game_board = board()
+    # Defining the players
+    player1 = RandomPlayer("Harol")
+    player2 = RandomPlayer("Raul")
 
-    print(game_board.see_board())
-
+    # initializing the game
+    play(player1, player2)
 
 if __name__ == '__main__':
     main()

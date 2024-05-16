@@ -1,4 +1,4 @@
-def player_won(player, board):
+def player_won(marker, board):
     """
     Verifies if the game has been won by the player by checking if there is tree consecutive marks from the same
     plater in any of the row, columns or diagonals.
@@ -12,13 +12,15 @@ def player_won(player, board):
     main_diagonal = lambda board, marker: all([marker == board[i, i] for i in range(board.shape[0])])
     # Checks the secondary diagonal
     secondary_diagonal = lambda board, marker: all([marker == board[i, 2 - i] for i in range(board.shape[0])])
-    # Checks the columns
-    columns = lambda board, marker: any((True for row in board.T if all(row == marker)))
-    # Checks the rows
-    rows = lambda board, marker: any((True for row in board if all(row == marker)))
+    # Checks if any of the column is full of the palyer's marker columns
+    columns = lambda board, marker: any([True if all(row == marker) else False for row in board.T])
+    # Checks any of the rows is full of the palyer's marker
+    rows = lambda board, marker: any([True if all(row == marker) else False for row in board])
 
-    if any(main_diagonal(board, player), secondary_diagonal(board, player),
-           columns(board, player), rows(board, player)):
+    # Verifying if any of the conditions are fulfilled.
+
+    if any([main_diagonal(board, marker), secondary_diagonal(board, marker),
+            columns(board, marker), rows(board, marker),]):
         return True
     else:
         return False
