@@ -1,13 +1,9 @@
-from Agents.GameAgents import RandomPlayer
-from GameEnviroment.GamePlay import play
+from utils import Board
 
 def main():
-    # Defining the players
-    player1 = RandomPlayer("Harol")
-    player2 = RandomPlayer("Raul")
+    board = Board()
 
-    # initializing the game
-    play(player1, player2)
+    print(board)
 
 if __name__ == '__main__':
     main()
