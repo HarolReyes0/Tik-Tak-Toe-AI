@@ -13,9 +13,8 @@ def play(player1, player2):
             # The agent picks a move based on the board state.
             move = player.make_a_move(board_state)
 
-            # The move is updated in the board.
+            # The move is added in the board.
             board.add_symbol(move, id_ + 1)
-            # Board is printed.
             print(board.see_board())
 
             # Checking if the game is a tie
