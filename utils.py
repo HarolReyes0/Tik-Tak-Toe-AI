@@ -28,7 +28,7 @@ class Board:
             
         return board
 
-    def place_piece(self, coordinates, symbol):
+    def place_piece(self, coordinates: tuple, piece: str):
         """
         Adds the player's piece on the cell selected.
 
@@ -36,7 +36,7 @@ class Board:
                 coordinates: coordinates where the piece is going to be placed.
                 piece: symbol to be placed.
         """
-        self.__board[coordinates] = symbol
+        self.__board[coordinates] = piece
 
     def player_won(self, piece: str) -> bool:
         """
@@ -75,3 +75,41 @@ class Board:
     
     def get_board(self):
         return self.__board
+
+class GameManager:
+
+    def select_players(self):
+        pass
+    
+    def play(*args) -> None:
+        """
+            Simulates a game between two players, alternating between them until one wins or the game ends in a tie.
+
+            Inputs:
+                    args(Class): class representing the players. 
+        """
+        assert len(args) > 2, "Number of players cannot exceed of two."
+
+        board = Board()
+        game_ended = False
+
+        while not game_ended:
+            for id_, player in enumerate([args]):
+                piece = 'X' if id_ % 2 == 0 else 'O'
+                board_state = board.get_board()
+                # Making and placing the move.
+                move = player.make_a_move(board_state)
+                board.place_piece(move, piece)
+                print(board)
+
+                # Checking if the game is a tie
+                if board.tie():
+                    print("Game is a tie!")
+                    game_ended = True
+                    break
+
+                # Checking if the game was won by the player
+                elif board.player_won(piece, board_state):
+                    print(f'{player.get_name()} won!')
+                    game_ended = True
+                    break
