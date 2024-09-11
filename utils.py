@@ -4,36 +4,42 @@ import numpy as np
 
 
 class Board:
-      """
-      This class creates the game board, this board consist in a 3 x 3 matrix
-      full of zeros.
-      """
-      def __init__(self):
-            self.__board = np.zeros((3, 3), dtype=int)
+    """
+    This class creates the game board, this board consist in a 3 x 3 matrix
+    full of zeros.
+    """
+    def __init__(self):
+        self.__board = np.full((3, 3), ' ')
+    
+    def __str__(self):
+        """
+            Prints the board in a more readable format.
+        """
+        board = ""
 
-      def see_board(self):
-            """
-            Prints the game board in an acsii style.
-            """
-            for idx, row in enumerate(self.__board):
-                  print(f'{row[0]} | {row[1]} | {row[2]}')
-                  if (idx + 1) % 3 != 0:
-                        print('- + - + -')
+        for i, row in enumerate(self.__board):
+            for j, cell in enumerate(row):
+                board += cell  # Add the current cell to the board
+                if j < len(row) - 1:  # Add '|' between the cells, but not after the last one
+                    board += ' | '
+            board += '\n'  # New line after each row
+            if i < len(self.__board) - 1:  # Add horizontal separator after each row, except the last one
+                board += '- + - + -\n'
+            
+        return board
 
-      def add_symbol(self, coordinates, symbol):
-            """
-            Adds the symbol to the cell selected.
+    def place_piece(self, coordinates, symbol):
+        """
+        Adds the player's piece on the cell selected.
 
-            Inputs:
-                  coordinates: coordinates where the symbol is going to be placed.
-                  symbol: symbol to be placed.
-                          player 1: 1
-                          player 2: 2
-            """
-            self.__board[coordinates] = symbol
+        Inputs:
+                coordinates: coordinates where the piece is going to be placed.
+                piece: symbol to be placed.
+        """
+        self.__board[coordinates] = symbol
 
-      def get_board(self):
-            return self.__board
+    def get_board(self):
+        return self.__board
 
 def player_won(marker, board) -> bool:
     """
