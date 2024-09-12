@@ -7,7 +7,7 @@ from random import choice
 class PlayerTemplate(ABC):
     
     @abstractclassmethod
-    def _avaliables_moves(self):
+    def _available_moves(self):
         pass
     
     @abstractclassmethod
@@ -22,7 +22,7 @@ class RandomPlayer(PlayerTemplate):
     def __init__(self):
         self.__name = "Random"
 
-    def _avaliables_moves(self, board):
+    def _available_moves(self, board):
         """
             Verifies the possible moves available on the board.
 
