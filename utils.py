@@ -1,4 +1,5 @@
 import numpy as np
+from agents import RandomPlayer
 
 
 
@@ -51,9 +52,9 @@ class Board:
         # Checks diagonals
         main_diagonal = lambda board, piece: all([piece == board[i, i] for i in range(board.shape[0])])
         secondary_diagonal = lambda board, piece: all([piece == board[i, 2 - i] for i in range(board.shape[0])])
-        # Checks if any of the column is full of the palyer's marker columns
+        # Checks if any of the column is full of the player's marker columns
         columns = lambda board, piece: any([True if all(row == piece) else False for row in board.T])
-        # Checks any of the rows is full of the palyer's marker
+        # Checks any of the rows is full of the player's marker
         rows = lambda board, piece: any([True if all(row == piece) else False for row in board])
 
         # Verifying if any of the conditions are fulfilled.
@@ -77,25 +78,48 @@ class Board:
         return self.__board
 
 class GameManager:
-
-    def select_players(self):
-        pass
-    
-    def play(*args) -> None:
+    @staticmethod
+    def select_players() -> list:
         """
-            Simulates a game between two players, alternating between them until one wins or the game ends in a tie.
+            Selects the players that will be playing the game.
 
-            Inputs:
-                    args(Class): class representing the players. 
+            returns:
+                List of classes, corresponding to the players.
         """
-        assert len(args) > 2, "Number of players cannot exceed of two."
+        players = {
+            '1' : RandomPlayer()
+        }
+        selected_players = []
+
+        # Repeating until it has enough players.
+        while len(players) >= 2:
+            print(f"Select the number {len(selected_players) + 1} player: \n")
+            input_ = str(input("1. Random\n2. Greedy\n3. MinMax"))
+
+            player = players.get(input_, None)
+
+            # Adding the selected player.
+            if player != None:
+                selected_players.append(player)
+        
+        return player
+
+    def play(self) -> None:
+        """
+            Simulates a game between two players, alternating between them until one wins or the game ends in a tie. 
+        """
+        # Obtaining the players to play with.
+        players = self.select_players()
+
+        assert len(players) > 2, "Number of players cannot exceed of two."
 
         board = Board()
         game_ended = False
 
+        # Initializing the game.
         while not game_ended:
-            for id_, player in enumerate([args]):
-                piece = 'X' if id_ % 2 == 0 else 'O'
+            for turn, player in enumerate([players]):
+                piece = 'X' if turn % 2 == 0 else 'O'
                 board_state = board.get_board()
                 # Making and placing the move.
                 move = player.make_a_move(board_state)
