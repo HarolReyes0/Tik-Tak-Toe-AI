@@ -1,9 +1,9 @@
-from utils import Board
+from utils import GameManager
 
 def main():
-    board = Board()
+    game = GameManager()
 
-    print(board)
+    game.start()
 
 if __name__ == '__main__':
     main()

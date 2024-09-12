@@ -1,6 +1,6 @@
 import numpy as np
 from agents import RandomPlayer
-
+import time
 
 
 
@@ -72,7 +72,7 @@ class Board:
 
         :return: Boolean indicating if the game is tied.
         """
-        return all((self.__board != '.').flatten())
+        return all((self.__board != ' ').flatten())
     
     def get_board(self):
         return self.__board
@@ -92,39 +92,41 @@ class GameManager:
         selected_players = []
 
         # Repeating until it has enough players.
-        while len(players) >= 2:
-            print(f"Select the number {len(selected_players) + 1} player: \n")
-            input_ = str(input("1. Random\n2. Greedy\n3. MinMax"))
+        while len(selected_players) < 2:
+            print("\n1. Random\n2. Greedy\n3. MinMax\n")
+            input_ = input(f"Select the {len(selected_players) + 1}° player: ")
 
             player = players.get(input_, None)
 
             # Adding the selected player.
             if player != None:
                 selected_players.append(player)
-        
-        return player
 
-    def play(self) -> None:
+        return selected_players
+
+    def start(self) -> None:
         """
             Simulates a game between two players, alternating between them until one wins or the game ends in a tie. 
         """
         # Obtaining the players to play with.
         players = self.select_players()
 
-        assert len(players) > 2, "Number of players cannot exceed of two."
+        assert len(players) == 2 , "Number of players needs to be two."
 
         board = Board()
         game_ended = False
 
         # Initializing the game.
         while not game_ended:
-            for turn, player in enumerate([players]):
+            for turn, player in enumerate(players):
                 piece = 'X' if turn % 2 == 0 else 'O'
                 board_state = board.get_board()
                 # Making and placing the move.
-                move = player.make_a_move(board_state)
+                move = player.make_move(board_state)
                 board.place_piece(move, piece)
+                print(f"Player {piece} turn.")
                 print(board)
+                time.sleep(1)
 
                 # Checking if the game is a tie
                 if board.tie():
@@ -133,7 +135,7 @@ class GameManager:
                     break
 
                 # Checking if the game was won by the player
-                elif board.player_won(piece, board_state):
+                elif board.player_won(piece):
                     print(f'{player.get_name()} won!')
                     game_ended = True
                     break

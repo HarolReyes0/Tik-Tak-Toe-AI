@@ -11,7 +11,7 @@ class PlayerTemplate(ABC):
         pass
     
     @abstractclassmethod
-    def _make_move(self):
+    def make_move(self):
         pass
     
     @abstractclassmethod
@@ -22,7 +22,8 @@ class RandomPlayer(PlayerTemplate):
     def __init__(self):
         self.__name = "Random"
 
-    def _available_moves(self, board):
+    @staticmethod
+    def _available_moves(board):
         """
             Verifies the possible moves available on the board.
 
@@ -31,9 +32,9 @@ class RandomPlayer(PlayerTemplate):
             returns: 
                 list of available cells to play.
         """
-        return [(i, j) for i, row in enumerate(board) for j, cell in enumerate(row) if cell == '.']
+        return [(i, j) for i, row in enumerate(board) for j, cell in enumerate(row) if cell == ' ']
 
-    def _make_move(self, board):
+    def make_move(self, board):
         """
             Selects a random cell out of the ones available to play.
                 Inputs:
@@ -41,7 +42,7 @@ class RandomPlayer(PlayerTemplate):
                 returns: 
                     tuple containing the coordinates of the cell where the agent is going to play.
         """
-        return choice(self.__disp_moves(board))
+        return choice(self._available_moves(board))
 
     def get_name(self):
         """
