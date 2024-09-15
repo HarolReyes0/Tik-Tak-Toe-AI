@@ -52,13 +52,12 @@ class Board:
         # Checks diagonals
         main_diagonal = lambda board, piece: all([piece == board[i, i] for i in range(board.shape[0])])
         secondary_diagonal = lambda board, piece: all([piece == board[i, 2 - i] for i in range(board.shape[0])])
-        # Checks if any of the column is full of the player's marker columns
+        # Checks if any of the column is full of the player's piece
         columns = lambda board, piece: any([True if all(row == piece) else False for row in board.T])
-        # Checks any of the rows is full of the player's marker
+        # Checks any of the rows is full of the player's piece
         rows = lambda board, piece: any([True if all(row == piece) else False for row in board])
 
-        # Verifying if any of the conditions are fulfilled.
-
+        # Verifying if the player won.
         if any([main_diagonal(self.__board, piece), secondary_diagonal(self.__board, piece),
                 columns(self.__board, piece), rows(self.__board, piece),]):
             return True
@@ -87,7 +86,7 @@ class GameManager:
                 List of classes, corresponding to the players.
         """
         players = {
-            '1' : RandomPlayer()
+            '1' : RandomPlayer
         }
         selected_players = []
 
@@ -100,7 +99,7 @@ class GameManager:
 
             # Adding the selected player.
             if player != None:
-                selected_players.append(player)
+                selected_players.append(player('X' if len(selected_players) <= 0 else 'O'))
 
         return selected_players
 
@@ -118,14 +117,17 @@ class GameManager:
 
         # Initializing the game.
         while not game_ended:
-            for turn, player in enumerate(players):
-                piece = 'X' if turn % 2 == 0 else 'O'
+            for player in players:
+                piece = player.get_piece()
                 board_state = board.get_board()
                 # Making and placing the move.
                 move = player.make_move(board_state)
+
                 board.place_piece(move, piece)
+
                 print(f"Player {piece} turn.")
                 print(board)
+                
                 time.sleep(1)
 
                 # Checking if the game is a tie
@@ -139,3 +141,27 @@ class GameManager:
                     print(f'{player.get_name()} won!')
                     game_ended = True
                     break
+def one_move_win(piece: str, board: Board) -> int:
+    '''
+    
+    '''
+    heuristic = 0
+
+    if piece == 'X':
+        opponent_piece = 'O'
+    else:
+        opponent_piece = 'X'
+
+    can_win = lambda piece, row: 1 if (piece == row).sum() == 2 and (piece == row).sum() == 0 else 0
+
+    for row in board.get_board():
+        heuristic += can_win(piece, row)
+    
+    for col in board.get_board().T:
+        heuristic += can_win(piece, row)
+
+def win_blocked():
+    pass
+
+def heuristics():
+    pass

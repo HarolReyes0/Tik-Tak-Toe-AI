@@ -17,10 +17,15 @@ class PlayerTemplate(ABC):
     @abstractclassmethod
     def get_name(self):
         pass
+    
+    @abstractclassmethod
+    def get_piece(self):
+        pass
 
 class RandomPlayer(PlayerTemplate):
-    def __init__(self):
+    def __init__(self, piece):
         self.__name = "Random"
+        self.__piece = piece
 
     @staticmethod
     def _available_moves(board):
@@ -50,3 +55,6 @@ class RandomPlayer(PlayerTemplate):
             return: Name of the player.
         """
         return self.__name
+    
+    def get_piece(self):
+        return self.__piece
