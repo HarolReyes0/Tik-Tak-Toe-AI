@@ -1,5 +1,6 @@
 import numpy as np
-
+from typing import Tuple
+import copy
 
 
 class Board:
@@ -27,7 +28,7 @@ class Board:
             
         return board
 
-    def place_piece(self, coordinates: tuple, piece: str):
+    def place_piece(self, coordinates: Tuple[int, int], piece: str):
         """
         Adds the player's piece on the cell selected.
 
@@ -74,29 +75,65 @@ class Board:
     def get_board(self):
         return self.__board
 
-def one_move_win(piece: str, board: Board) -> int:
-    '''
-        Verifies the current board to obtain the amount of cases where there's one piece
-        remaining to win.
 
-        inputs:
-                piece(str): Player's piece.
-                board(Board): Current board. 
+def heuristic(coordinates: Tuple[int, int], board: Board, piece: str, val= 5, piece_count= 2) -> int:
+    """
+        Calculates the heuristic value of a given choice based on the amount of consecutive pieces placed.
+
+        Inputs:
+                coordinates(tuple): Coordinates to place the piece.
+                board(Boar): Current GameBoard.
+                piece(Piece): piece to place in the board.
+                val(int): Heuristic value in case that the conditions are fulfilled.
+                piece_count(int): amount of pieces to check if placed consecutive.
         Outputs:
-                Amount of cases where there's only one piece remaining to win normalized.
-    '''
-    heuristic = 0
-    # Filtering the diagonals
-    main_diagonal = [board[(i, i)] for i in range(board.shape[0])]
-    second_diagonal = [board[i, 2 - i] for i in range(board.shape[0])]
+                int: heuristic score normalized
+    """
+    score = 0
+    rival_piece = 'X' if piece == 'O' else 'O'
 
-    can_win = lambda piece, row: 1 if (piece == row).sum() == 2 and (piece != row).sum() == 0 else 0
+    # Create a copy of the board and place the piece
+    board_copy = copy.deepcopy(board)
+    board_copy.place_piece(coordinates, piece)
+    matrix_board = board_copy.get_board()
 
-    for matrix in [board.get_board(), board.get_board().T]:
-        for row in matrix:
-            heuristic += can_win(piece, row)
+    row, col = coordinates
+
+    # Define the evaluation function
+    def evaluate_line(block = False):
+        def moving_to_win(line):
+            if (line == piece).sum() == piece_count and (line == rival_piece).sum() == 0:
+                return val
+            else:
+                return 0
+            
+        def moving_to_block(line):
+            if (line == rival_piece).sum() == 2 and (line == piece).sum() == 1:
+                return val
+            else:
+                return 0
+        
+        if block:
+            return moving_to_block
+        
+        return moving_to_win
+
+    # Evaluate the row
+    row_line = matrix_board[row, :]
+    score += evaluate_line(row_line)
+
+    # Evaluate the column
+    col_line = matrix_board[:, col]
+    score += evaluate_line(col_line)
+
+    # Evaluate the main diagonal if applicable
+    if row == col:
+        main_diag = np.diag(matrix_board)
+        score += evaluate_line(main_diag)
     
-    for diagonal in [main_diagonal, second_diagonal]:
-        heuristic += can_win(piece, diagonal)
+    # Evaluate the anti-diagonal if applicable
+    if row + col == 2:
+        anti_diag = np.diag(np.fliplr(matrix_board))
+        score += evaluate_line(anti_diag)
 
-    return heuristic / 8
+    return score / (val * 3)
