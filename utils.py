@@ -127,7 +127,7 @@ class GameManager:
 
                 print(f"Player {piece} turn.")
                 print(board)
-                
+
                 time.sleep(1)
 
                 # Checking if the game is a tie
@@ -141,27 +141,30 @@ class GameManager:
                     print(f'{player.get_name()} won!')
                     game_ended = True
                     break
+
 def one_move_win(piece: str, board: Board) -> int:
     '''
-    
+        Verifies the current board to obtain the amount of cases where there's one piece
+        remaining to win.
+
+        inputs:
+                piece(str): Player's piece.
+                board(Board): Current board. 
+        Outputs:
+                Amount of cases where there's only one piece remaining to win normalized.
     '''
     heuristic = 0
+    # Filtering the diagonals
+    main_diagonal = [board[(i, i)] for i in range(board.shape[0])]
+    second_diagonal = [board[i, 2 - i] for i in range(board.shape[0])]
 
-    if piece == 'X':
-        opponent_piece = 'O'
-    else:
-        opponent_piece = 'X'
+    can_win = lambda piece, row: 1 if (piece == row).sum() == 2 and (piece != row).sum() == 0 else 0
 
-    can_win = lambda piece, row: 1 if (piece == row).sum() == 2 and (piece == row).sum() == 0 else 0
-
-    for row in board.get_board():
-        heuristic += can_win(piece, row)
+    for matrix in [board.get_board(), board.get_board().T]:
+        for row in matrix:
+            heuristic += can_win(piece, row)
     
-    for col in board.get_board().T:
-        heuristic += can_win(piece, row)
+    for diagonal in [main_diagonal, second_diagonal]:
+        heuristic += can_win(piece, diagonal)
 
-def win_blocked():
-    pass
-
-def heuristics():
-    pass
+    return heuristic / 8
