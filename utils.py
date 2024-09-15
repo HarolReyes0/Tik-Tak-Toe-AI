@@ -1,5 +1,4 @@
 import numpy as np
-from agents import RandomPlayer
 import time
 
 
@@ -75,72 +74,6 @@ class Board:
     
     def get_board(self):
         return self.__board
-
-class GameManager:
-    @staticmethod
-    def select_players() -> list:
-        """
-            Selects the players that will be playing the game.
-
-            returns:
-                List of classes, corresponding to the players.
-        """
-        players = {
-            '1' : RandomPlayer
-        }
-        selected_players = []
-
-        # Repeating until it has enough players.
-        while len(selected_players) < 2:
-            print("\n1. Random\n2. Greedy\n3. MinMax\n")
-            input_ = input(f"Select the {len(selected_players) + 1}° player: ")
-
-            player = players.get(input_, None)
-
-            # Adding the selected player.
-            if player != None:
-                selected_players.append(player('X' if len(selected_players) <= 0 else 'O'))
-
-        return selected_players
-
-    def start(self) -> None:
-        """
-            Simulates a game between two players, alternating between them until one wins or the game ends in a tie. 
-        """
-        # Obtaining the players to play with.
-        players = self.select_players()
-
-        assert len(players) == 2 , "Number of players needs to be two."
-
-        board = Board()
-        game_ended = False
-
-        # Initializing the game.
-        while not game_ended:
-            for player in players:
-                piece = player.get_piece()
-                board_state = board.get_board()
-                # Making and placing the move.
-                move = player.make_move(board_state)
-
-                board.place_piece(move, piece)
-
-                print(f"Player {piece} turn.")
-                print(board)
-
-                time.sleep(1)
-
-                # Checking if the game is a tie
-                if board.tie():
-                    print("Game is a tie!")
-                    game_ended = True
-                    break
-
-                # Checking if the game was won by the player
-                elif board.player_won(piece):
-                    print(f'{player.get_name()} won!')
-                    game_ended = True
-                    break
 
 def one_move_win(piece: str, board: Board) -> int:
     '''
