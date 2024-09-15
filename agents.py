@@ -1,35 +1,14 @@
-from utils import Board
+from utils import Board, one_move_win
 from abc import ABC, abstractclassmethod
 from random import choice
-
+import time
 
 
 
 class PlayerTemplate(ABC):
     
-    @abstractclassmethod
-    def _available_moves(self):
-        pass
-    
-    @abstractclassmethod
-    def make_move(self):
-        pass
-    
-    @abstractclassmethod
-    def get_name(self):
-        pass
-    
-    @abstractclassmethod
-    def get_piece(self):
-        pass
-
-class RandomPlayer(PlayerTemplate):
-    def __init__(self, piece):
-        self.__name = "Random"
-        self.__piece = piece
-
-    @staticmethod
-    def _available_moves(board: Board) -> list:
+    @classmethod
+    def _available_moves(cls, board: Board) -> list:
         """
             Verifies the possible moves available on the board.
 
@@ -39,6 +18,19 @@ class RandomPlayer(PlayerTemplate):
                 list of available cells to play.
         """
         return [(i, j) for i, row in enumerate(board) for j, cell in enumerate(row) if cell == ' ']
+    
+    @abstractclassmethod
+    def make_move(self):
+        pass
+    
+    @abstractclassmethod
+    def get_name(self):
+        pass
+
+class RandomPlayer(PlayerTemplate):
+    def __init__(self, piece):
+        self.__name = "Random"
+        self.__piece = piece
 
     def make_move(self, board: Board) -> tuple:
         """
@@ -48,7 +40,7 @@ class RandomPlayer(PlayerTemplate):
                 returns: 
                     tuple containing the coordinates of the cell where the agent is going to play.
         """
-        return choice(self._available_moves(board))
+        return choice(PlayerTemplate._available_moves(board))
 
     def get_name(self) -> str:
         """
@@ -58,7 +50,21 @@ class RandomPlayer(PlayerTemplate):
         return self.__name
     
     def get_piece(self) -> str:
-        return self.__piece    
+        return self.__piece
+
+class Greedy(PlayerTemplate):
+    def __init__(self, piece) -> None:
+        self.__name = "Greedy"
+        self.__piece = piece
+    
+    def make_move(self):
+        pass
+    
+    def get_name(self):
+        pass
+    
+    def get_piece(self):
+        pass
 
 class GameManager:
     @staticmethod
@@ -77,7 +83,7 @@ class GameManager:
         # Repeating until it has enough players.
         while len(selected_players) < 2:
             print("\n1. Random\n2. Greedy\n3. MinMax\n")
-            input_ = input(f"Select the {len(selected_players) + 1}° player: ")
+            input_ = input(f"Select the {len(selected_players) + 1} player: ")
 
             player = players.get(input_, None)
 
