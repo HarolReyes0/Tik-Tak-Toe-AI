@@ -99,7 +99,6 @@ def heuristic(coordinates: Tuple[int, int], board: Board, piece: str, val= 5, pi
 
     row, col = coordinates
 
-    # Define the evaluation function
     def choose_eval(only_block = False):
         """
             Chooses the heuristic based on blocking the rival or placing pieces to win.
@@ -110,6 +109,7 @@ def heuristic(coordinates: Tuple[int, int], board: Board, piece: str, val= 5, pi
             Outputs(play_to_win or play_to_block):
                     Function that will evaluate the heuristic. 
         """
+        # Defining evaluation functions.
         def play_to_win(line):
             """
                 Returns the heuristic value if the vector have n player's pieces.
@@ -133,6 +133,7 @@ def heuristic(coordinates: Tuple[int, int], board: Board, piece: str, val= 5, pi
         
         return play_to_win
 
+    # Choosing evaluation function.
     evaluate_line = choose_eval(only_block)
 
     # Evaluate the row

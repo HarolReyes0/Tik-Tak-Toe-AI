@@ -1,9 +1,9 @@
-from utils import Board, one_move_win
+from utils import Board, heuristic
 from abc import ABC, abstractclassmethod
 from random import choice
 import time
 
-
+# TODO: Check and fix type checks.
 
 class PlayerTemplate(ABC):
     
@@ -57,8 +57,10 @@ class Greedy(PlayerTemplate):
         self.__name = "Greedy"
         self.__piece = piece
     
-    def make_move(self):
-        pass
+    def make_move(self, board: Board):
+        av_moves = PlayerTemplate._available_moves()
+
+        
     
     def get_name(self):
         pass
