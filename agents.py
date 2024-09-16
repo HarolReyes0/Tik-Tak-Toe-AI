@@ -15,7 +15,7 @@ import copy
 class PlayerTemplate(ABC):
     
     @classmethod
-    def _available_moves(cls, board: Board) -> list:
+    def _available_moves(cls, board: np.array) -> list:
         """
             Verifies the possible moves available on the board.
 
@@ -108,6 +108,45 @@ class GreedyPlayer(PlayerTemplate):
         """
         return self.__piece
     
+class HumanPlayer(PlayerTemplate):
+    def __init__(self, piece) -> None:
+        self.__name = 'Human'
+        self.__piece = piece
+
+    def make_move(self, board) -> Tuple[int, int]:
+        copied_board = copy.deepcopy(board)
+        raw_board = copied_board.get_board()
+        av_moves = PlayerTemplate._available_moves(raw_board)
+        invalid_input = True
+        moves = {}
+
+        # Adding all the available moves on the board.
+        for i, move in enumerate(av_moves):
+            moves[i] = move
+            copied_board.place_piece(move, i)
+        
+        print(copied_board)
+
+        # Obtaining the user's move
+        while invalid_input:
+            try:
+                input_ = int(input("Select your move..."))
+            except:
+                print('Enter a valid input...')
+                continue
+            
+            move = moves.get(input_, None)
+
+            if move != None:
+                break
+        
+        return move
+
+    def get_name(self) -> str:
+        self.__name
+    
+    def get_piece(self) -> str:
+        return self.__piece
 
 class GameManager:
     @staticmethod
@@ -120,13 +159,14 @@ class GameManager:
         """
         players = {
             '1' : RandomPlayer,
-            '2' : GreedyPlayer
+            '2' : GreedyPlayer,
+            '3' : HumanPlayer,
         }
         selected_players = []
 
         # Repeating until it has enough players.
         while len(selected_players) < 2:
-            print("\n1. Random\n2. Greedy\n3. MinMax\n")
+            print("\n1. Random\n2. Greedy\n3. Human\n4. MinMax")
             input_ = input(f"Select the {len(selected_players) + 1} player: ")
 
             player = players.get(input_, None)
