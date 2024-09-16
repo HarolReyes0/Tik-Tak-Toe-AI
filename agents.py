@@ -4,6 +4,9 @@ from random import choice
 import time
 from typing import Tuple
 import os
+import numpy as np
+import copy
+
 
 
 
@@ -30,6 +33,10 @@ class PlayerTemplate(ABC):
     @abstractclassmethod
     def get_name(self) -> None:
         pass
+    
+    @abstractclassmethod
+    def get_piece(self) -> None:
+        pass
 
 class RandomPlayer(PlayerTemplate):
     def __init__(self, piece):
@@ -44,7 +51,8 @@ class RandomPlayer(PlayerTemplate):
                 returns: 
                     tuple containing the coordinates of the cell where the agent is going to play.
         """
-        return choice(PlayerTemplate._available_moves(board))
+        raw_board = board.get_board()
+        return choice(PlayerTemplate._available_moves(raw_board))
 
     def get_name(self) -> str:
         """
@@ -71,14 +79,15 @@ class GreedyPlayer(PlayerTemplate):
                 (tuple) coordinates to place the piece. 
         """
         moves_rank = []
-        av_moves = PlayerTemplate._available_moves(board)
+        raw_board = copy.deepcopy(board.get_board())
+        av_moves = PlayerTemplate._available_moves(raw_board)
         score = 0
 
         for move in av_moves:
-            score += heuristic(move, board, self.__piece) # Check places where it can have two pieces in a row. 
-            score += heuristic(move, board, self.__piece, piece_count=3, val=100) # Checks if the position is a winning position.
+            score += heuristic(move, raw_board, self.__piece) # Check places where it can have two pieces in a row. 
+            score += heuristic(move, raw_board, self.__piece, piece_count=3, val=100) # Checks if the position is a winning position.
             # Checks if the position is a winning position for the rival.
-            score += heuristic(move, board, self.__piece, piece_count=2, val=25, only_block=True) 
+            score += heuristic(move, raw_board, self.__piece, piece_count=2, val=25, only_block=True) 
             # Adds the move to the rank.
             moves_rank.append((score, move))
         
@@ -98,6 +107,7 @@ class GreedyPlayer(PlayerTemplate):
             Returns the player's piece.
         """
         return self.__piece
+    
 
 class GameManager:
     @staticmethod
@@ -143,14 +153,13 @@ class GameManager:
         while not game_ended:
             for player in players:
                 piece = player.get_piece()
-                board_state = board.get_board()
                 # Making and placing the move.
-                move = player.make_move(board_state)
+                move = player.make_move(board)
 
                 board.place_piece(move, piece)
 
                 # Cleaning the screen
-                # os.system('cls')
+                os.system('cls')
 
                 # Printing the board
                 print(f"Player {piece} turn.")
