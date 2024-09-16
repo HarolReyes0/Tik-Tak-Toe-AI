@@ -94,8 +94,8 @@ def heuristic(coordinates: Tuple[int, int], board: Board, piece: str, val= 5, pi
 
     # Create a copy of the board and place the piece
     board_copy = copy.deepcopy(board)
-    board_copy.place_piece(coordinates, piece)
-    matrix_board = board_copy.get_board()
+    board_copy[coordinates] = piece
+    
 
     row, col = coordinates
 
@@ -137,21 +137,21 @@ def heuristic(coordinates: Tuple[int, int], board: Board, piece: str, val= 5, pi
     evaluate_line = choose_eval(only_block)
 
     # Evaluate the row
-    row_line = matrix_board[row, :]
+    row_line = board_copy[row, :]
     score += evaluate_line(row_line)
 
     # Evaluate the column
-    col_line = matrix_board[:, col]
+    col_line = board_copy[:, col]
     score += evaluate_line(col_line)
 
     # Evaluate the main diagonal if applicable
     if row == col:
-        main_diag = np.diag(matrix_board)
+        main_diag = np.diag(board_copy)
         score += evaluate_line(main_diag)
     
     # Evaluate the anti-diagonal if applicable
     if row + col == 2:
-        anti_diag = np.diag(np.fliplr(matrix_board))
+        anti_diag = np.diag(np.fliplr(board_copy))
         score += evaluate_line(anti_diag)
 
     return score / (val * 3)

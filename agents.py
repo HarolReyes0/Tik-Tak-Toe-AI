@@ -2,9 +2,13 @@ from utils import Board, heuristic
 from abc import ABC, abstractclassmethod
 from random import choice
 import time
+from typing import Tuple
+import os
+
+
+
 
 # TODO: Check and fix type checks.
-
 class PlayerTemplate(ABC):
     
     @classmethod
@@ -20,11 +24,11 @@ class PlayerTemplate(ABC):
         return [(i, j) for i, row in enumerate(board) for j, cell in enumerate(row) if cell == ' ']
     
     @abstractclassmethod
-    def make_move(self):
+    def make_move(self) -> None:
         pass
     
     @abstractclassmethod
-    def get_name(self):
+    def get_name(self) -> None:
         pass
 
 class RandomPlayer(PlayerTemplate):
@@ -32,7 +36,7 @@ class RandomPlayer(PlayerTemplate):
         self.__name = "Random"
         self.__piece = piece
 
-    def make_move(self, board: Board) -> tuple:
+    def make_move(self, board: Board) -> Tuple[int, int]:
         """
             Selects a random cell out of the ones available to play.
                 Inputs:
@@ -52,21 +56,48 @@ class RandomPlayer(PlayerTemplate):
     def get_piece(self) -> str:
         return self.__piece
 
-class Greedy(PlayerTemplate):
+class GreedyPlayer(PlayerTemplate):
     def __init__(self, piece) -> None:
         self.__name = "Greedy"
         self.__piece = piece
     
-    def make_move(self, board: Board):
-        av_moves = PlayerTemplate._available_moves()
+    def make_move(self, board: Board) -> Tuple[int, int]:
+        """
+            Chooses the move to make based in a greedy approach.
 
+            Inputs:
+                board(Board): current game board.
+            Returns:
+                (tuple) coordinates to place the piece. 
+        """
+        moves_rank = []
+        av_moves = PlayerTemplate._available_moves(board)
+        score = 0
+
+        for move in av_moves:
+            score += heuristic(move, board, self.__piece) # Check places where it can have two pieces in a row. 
+            score += heuristic(move, board, self.__piece, piece_count=3, val=100) # Checks if the position is a winning position.
+            # Checks if the position is a winning position for the rival.
+            score += heuristic(move, board, self.__piece, piece_count=2, val=25, only_block=True) 
+            # Adds the move to the rank.
+            moves_rank.append((score, move))
         
+        # Sorting the rank
+        moves_rank = sorted(moves_rank, key=lambda x: x[0], reverse=True)
+        
+        return moves_rank[0][1] 
+            
+    def get_name(self) -> str:
+        """
+            Returns the players' name.
+        """
+        return self.__name
     
-    def get_name(self):
-        pass
-    
-    def get_piece(self):
-        pass
+    def get_piece(self) -> str:
+        """
+            Returns the player's piece.
+        """
+        return self.__piece
 
 class GameManager:
     @staticmethod
@@ -78,7 +109,8 @@ class GameManager:
                 List of classes, corresponding to the players.
         """
         players = {
-            '1' : RandomPlayer
+            '1' : RandomPlayer,
+            '2' : GreedyPlayer
         }
         selected_players = []
 
@@ -117,19 +149,23 @@ class GameManager:
 
                 board.place_piece(move, piece)
 
+                # Cleaning the screen
+                # os.system('cls')
+
+                # Printing the board
                 print(f"Player {piece} turn.")
                 print(board)
 
                 time.sleep(1)
 
-                # Checking if the game is a tie
-                if board.tie():
-                    print("Game is a tie!")
+                # Checking if the game was won by the player
+                if board.player_won(piece):
+                    print(f'{player.get_name()} won!')
                     game_ended = True
                     break
-
-                # Checking if the game was won by the player
-                elif board.player_won(piece):
-                    print(f'{player.get_name()} won!')
+                
+                # Checking if the game is a tie
+                elif board.tie():
+                    print("Game is a tie!")
                     game_ended = True
                     break
