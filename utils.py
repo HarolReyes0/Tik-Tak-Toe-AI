@@ -76,7 +76,7 @@ class Board:
         return self.__board
 
 
-def heuristic(coordinates: Tuple[int, int], board: Board, piece: str, val= 5, piece_count= 2) -> int:
+def heuristic(coordinates: Tuple[int, int], board: Board, piece: str, val= 5, piece_count= 2, only_block = False) -> float:
     """
         Calculates the heuristic value of a given choice based on the amount of consecutive pieces placed.
 
@@ -100,23 +100,40 @@ def heuristic(coordinates: Tuple[int, int], board: Board, piece: str, val= 5, pi
     row, col = coordinates
 
     # Define the evaluation function
-    def evaluate_line(block = False):
-        def moving_to_win(line):
+    def choose_eval(only_block = False):
+        """
+            Chooses the heuristic based on blocking the rival or placing pieces to win.
+
+            Inputs:
+                    only_block(Bool): if the heuristic is based only in blocking the rival pieces.
+            
+            Outputs(play_to_win or play_to_block):
+                    Function that will evaluate the heuristic. 
+        """
+        def play_to_win(line):
+            """
+                Returns the heuristic value if the vector have n player's pieces.
+            """
             if (line == piece).sum() == piece_count and (line == rival_piece).sum() == 0:
                 return val
             else:
                 return 0
             
-        def moving_to_block(line):
+        def play_to_block(line):
+            """
+                Returns the heuristic value if the vector have n rival's pieces.
+            """
             if (line == rival_piece).sum() == 2 and (line == piece).sum() == 1:
                 return val
             else:
                 return 0
         
-        if block:
-            return moving_to_block
+        if only_block:
+            return play_to_block
         
-        return moving_to_win
+        return play_to_win
+
+    evaluate_line = choose_eval(only_block)
 
     # Evaluate the row
     row_line = matrix_board[row, :]
