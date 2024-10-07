@@ -7,11 +7,11 @@ import os
 import numpy as np
 import copy
 
+# TODO: Fix bug; not showing human player name after winning. 
 
 
 
 
-# TODO: Check and fix type checks.
 class PlayerTemplate(ABC):
     
     @classmethod
@@ -78,7 +78,7 @@ class GreedyPlayer(PlayerTemplate):
             Returns:
                 (tuple) coordinates to place the piece. 
         """
-        moves_rank = []
+        queue = []
         raw_board = copy.deepcopy(board.get_board())
         av_moves = PlayerTemplate._available_moves(raw_board)
         score = 0
@@ -87,14 +87,15 @@ class GreedyPlayer(PlayerTemplate):
             score += heuristic(move, raw_board, self.__piece) # Check places where it can have two pieces in a row. 
             score += heuristic(move, raw_board, self.__piece, piece_count=3, val=100) # Checks if the position is a winning position.
             # Checks if the position is a winning position for the rival.
-            score += heuristic(move, raw_board, self.__piece, piece_count=2, val=25, only_block=True) 
-            # Adds the move to the rank.
-            moves_rank.append((score, move))
+            score += heuristic(move, raw_board, self.__piece, piece_count=2, val=50, only_block=True) 
+            # Normalizes the rank and adds it to the priority queue.
+            queue.append((score, move))
+            score = 0
         
         # Sorting the rank
-        moves_rank = sorted(moves_rank, key=lambda x: x[0], reverse=True)
+        queue = sorted(queue, key=lambda x: x[0], reverse=True)
         
-        return moves_rank[0][1] 
+        return queue[0][1] 
             
     def get_name(self) -> str:
         """
