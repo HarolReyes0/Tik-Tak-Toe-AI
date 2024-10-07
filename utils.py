@@ -143,3 +143,23 @@ def heuristic(coordinates: Tuple[int, int], board: Board, piece: str, val= 5, pi
         score += evaluate_line(anti_diag)
 
     return score
+
+def calculate_heuristic(move: Tuple[int, int], raw_board: Board, piece: str) -> int:
+    """
+        Calculates the heuristic score of a given state.
+
+        Inputs:
+                move(tuple(int, int)): Coordinates to place the piece.
+                raw_board: game board to evaluate.
+                piece: piece to be placed.
+
+        Returns: 
+                (int) score after evaluating the board. 
+    """
+    score = 0
+    score += heuristic(move, raw_board, piece) # Check places where it can have two pieces in a row. 
+    score += heuristic(move, raw_board, piece, piece_count=3, val=100) # Checks if the position is a winning position.
+    # Checks if the position is a winning position for the rival.
+    score += heuristic(move, raw_board, piece, piece_count=2, val=50, only_block=True)
+
+    return score

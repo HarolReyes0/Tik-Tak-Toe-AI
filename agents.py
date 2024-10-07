@@ -1,4 +1,4 @@
-from utils import Board, heuristic
+from utils import Board, calculate_heuristic
 from abc import ABC, abstractclassmethod
 from random import choice
 import time
@@ -81,16 +81,12 @@ class GreedyPlayer(PlayerTemplate):
         queue = []
         raw_board = copy.deepcopy(board.get_board())
         av_moves = PlayerTemplate._available_moves(raw_board)
-        score = 0
 
         for move in av_moves:
-            score += heuristic(move, raw_board, self.__piece) # Check places where it can have two pieces in a row. 
-            score += heuristic(move, raw_board, self.__piece, piece_count=3, val=100) # Checks if the position is a winning position.
-            # Checks if the position is a winning position for the rival.
-            score += heuristic(move, raw_board, self.__piece, piece_count=2, val=50, only_block=True) 
-            # Normalizes the rank and adds it to the priority queue.
+            # Calculating the heuristic score.
+            score = calculate_heuristic(move, raw_board, self.__piece)
+            # Adds the state to the queue.
             queue.append((score, move))
-            score = 0
         
         # Sorting the rank
         queue = sorted(queue, key=lambda x: x[0], reverse=True)
@@ -144,10 +140,25 @@ class HumanPlayer(PlayerTemplate):
         return move
 
     def get_name(self) -> str:
-        self.__name
+        return self.__name
     
     def get_piece(self) -> str:
         return self.__piece
+
+class MinMax(PlayerTemplate):
+    def __init__(self, piece) -> None:
+        self.__piece = piece
+        self.__name = 'MinMax'
+
+    def make_move(self) -> None:
+        pass
+    
+    def get_name(self) -> None:
+        return self.__name
+    
+    def get_piece(self) -> None:
+        self.__piece
+
 
 class GameManager:
     @staticmethod
