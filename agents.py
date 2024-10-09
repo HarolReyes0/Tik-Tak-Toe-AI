@@ -156,7 +156,7 @@ class MinMax(PlayerTemplate):
         if board.player_won(self.__piece):
             return None, 9999
         # Verifying if rival won.
-        elif board.player_wor(rival_piece):
+        elif board.player_won(rival_piece):
             return None, -9999
         # Verifying if game was a tie.
         elif board.tie():
@@ -165,11 +165,11 @@ class MinMax(PlayerTemplate):
         max_child, max_utility = None, - np.inf
 
         # Creating a chields.
-        for coordinates in self._available_moves(board):
-            child = copy.deepcopy(board)
-            child.place_piece(coordinates, self.__piece)
+        for child in self._available_moves(board):
+            new_board = copy.deepcopy(board)
+            new_board.place_piece(child, self.__piece)
 
-            _, utility = self._minimize(child, alpha, beta, rival_piece)
+            _, utility = self._minimize(new_board, alpha, beta, rival_piece)
             
             # Updating to max values.
             if utility > max_utility:
@@ -185,12 +185,47 @@ class MinMax(PlayerTemplate):
         return max_child, max_utility
 
 
-    def _minimize(self, board, a, b):
-        pass
+    def _minimize(self, board: Board, alpha: int, beta: int, rival_piece: str):
+        
+        # Verifying if player won.
+        if board.player_won(self.__piece):
+            return None, 9999
+        # Verifying if rival won.
+        elif board.player_won(rival_piece):
+            return None, -9999
+        # Verifying if game was a tie.
+        elif board.tie():
+            return 0
+        
+        min_child, min_utility = None, np.inf
 
-    def make_move(self) -> None:
+        # Creating a chields.
+        for child in self._available_moves(board):
+            new_board = copy.deepcopy(board)
+            new_board.place_piece(child, self.__piece)
+
+            _, utility = self._maximize(new_board, alpha, beta, rival_piece)
+            
+            # Updating to max values.
+            if utility < min_utility:
+                min_child, min_utility = child, utility
+
+            # Prunes branch.
+            if min_utility <= alpha:
+                break
+            
+            # Updating alpha.
+            alpha = min(alpha, min_utility)
+        
+        return min_child, min_utility
+
+    def make_move(self, board: Board) -> Tuple[int, int]:
         # Selecting rival piece.
         rival_piece = 'X' if self.__piece == 'O' else 'O'
+
+        child, _ = self._maximize(board, - np.inf, np.inf, rival_piece)
+
+        return child
     
     def get_name(self) -> None:
         return self.__name
@@ -212,6 +247,7 @@ class GameManager:
             '1' : RandomPlayer,
             '2' : GreedyPlayer,
             '3' : HumanPlayer,
+            '4' : MinMax
         }
         selected_players = []
 
