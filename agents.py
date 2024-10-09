@@ -150,8 +150,47 @@ class MinMax(PlayerTemplate):
         self.__piece = piece
         self.__name = 'MinMax'
 
-    def make_move(self) -> None:
+    def _maximize(self, board: Board, alpha: int, beta: int, rival_piece: str):
+        
+        # Verifying if player won.
+        if board.player_won(self.__piece):
+            return None, 9999
+        # Verifying if rival won.
+        elif board.player_wor(rival_piece):
+            return None, -9999
+        # Verifying if game was a tie.
+        elif board.tie():
+            return 0
+        
+        max_child, max_utility = None, - np.inf
+
+        # Creating a chields.
+        for coordinates in self._available_moves(board):
+            child = copy.deepcopy(board)
+            child.place_piece(coordinates, self.__piece)
+
+            _, utility = self._minimize(child, alpha, beta, rival_piece)
+            
+            # Updating to max values.
+            if utility > max_utility:
+                max_child, max_utility = child, utility
+
+            # Prunes branch.
+            if max_utility >= beta:
+                break
+            
+            # Updating alpha.
+            alpha = max(alpha, max_utility)
+        
+        return max_child, max_utility
+
+
+    def _minimize(self, board, a, b):
         pass
+
+    def make_move(self) -> None:
+        # Selecting rival piece.
+        rival_piece = 'X' if self.__piece == 'O' else 'O'
     
     def get_name(self) -> None:
         return self.__name
