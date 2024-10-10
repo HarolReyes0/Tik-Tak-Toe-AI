@@ -70,3 +70,7 @@ To start the game, run the `main.py` file:
 
 ```bash
 python main.py
+
+https://github.com/user-attachments/assets/0930bb9e-76d8-480e-a795-eafbd1d78819
+
+
