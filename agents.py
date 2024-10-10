@@ -7,8 +7,6 @@ import os
 import numpy as np
 import copy
 
-# TODO: Fix bug; not showing human player name after winning. 
-
 
 
 
@@ -38,6 +36,7 @@ class PlayerTemplate(ABC):
     def get_piece(self) -> None:
         pass
 
+
 class RandomPlayer(PlayerTemplate):
     def __init__(self, piece):
         self.__name = "Random"
@@ -52,7 +51,7 @@ class RandomPlayer(PlayerTemplate):
                     tuple containing the coordinates of the cell where the agent is going to play.
         """
         raw_board = board.get_board()
-        return choice(PlayerTemplate._available_moves(raw_board))
+        return choice(self._available_moves(raw_board))
 
     def get_name(self) -> str:
         """
@@ -63,6 +62,7 @@ class RandomPlayer(PlayerTemplate):
     
     def get_piece(self) -> str:
         return self.__piece
+
 
 class GreedyPlayer(PlayerTemplate):
     def __init__(self, piece) -> None:
@@ -80,7 +80,7 @@ class GreedyPlayer(PlayerTemplate):
         """
         queue = []
         raw_board = copy.deepcopy(board.get_board())
-        av_moves = PlayerTemplate._available_moves(raw_board)
+        av_moves = self._available_moves(raw_board)
 
         for move in av_moves:
             # Calculating the heuristic score.
@@ -105,6 +105,7 @@ class GreedyPlayer(PlayerTemplate):
         """
         return self.__piece
     
+
 class HumanPlayer(PlayerTemplate):
     def __init__(self, piece) -> None:
         self.__name = 'Human'
@@ -113,7 +114,7 @@ class HumanPlayer(PlayerTemplate):
     def make_move(self, board) -> Tuple[int, int]:
         copied_board = copy.deepcopy(board)
         raw_board = copied_board.get_board()
-        av_moves = PlayerTemplate._available_moves(raw_board)
+        av_moves = self._available_moves(raw_board)
         invalid_input = True
         moves = {}
 
@@ -145,95 +146,142 @@ class HumanPlayer(PlayerTemplate):
     def get_piece(self) -> str:
         return self.__piece
 
+
 class MinMax(PlayerTemplate):
     def __init__(self, piece) -> None:
         self.__piece = piece
         self.__name = 'MinMax'
 
-    def _maximize(self, board: Board, alpha: int, beta: int, rival_piece: str):
-        
-        # Verifying if player won.
+    def _maximize(self, board: Board, alpha: float, beta: float, rival_piece: str):
+        """
+        Makes the plays that maximizes the chances of winning to the rival.
+
+            Inputs:
+                    board (board): instance of the current board.
+                    alpha (int): value that represents the best score on that branch.
+                    beta (int): value that represents the worst score on that branch.
+                    rival_piece (str): rival piece.
+            Outputs:
+                    max_child (tuple(int, int)): coordinates of the play that maximizes the chances of winning.
+                    max_utility (int): branch value.
+        """
+        # Checking if the current state is a tie or one of the players won it.
         if board.player_won(self.__piece):
             return None, 9999
-        # Verifying if rival won.
         elif board.player_won(rival_piece):
             return None, -9999
-        # Verifying if game was a tie.
         elif board.tie():
-            return 0
-        
-        max_child, max_utility = None, - np.inf
+            return None, 0
 
-        # Creating a chields.
-        for child in PlayerTemplate._available_moves(board):
-            # Debugging
-            print(child)
+        # Setting a place holder for the best child and its utility.
+        max_child, max_utility = None, -np.inf
+
+        # Obtaining available moves.
+        moves = self._available_moves(board.get_board())
+        if not moves:
+            return None, 0
+
+        # Exploring each move.
+        for child in moves:
             new_board = copy.deepcopy(board)
             new_board.place_piece(child, self.__piece)
 
+            # Calling Min to keep exploring the branch.
             _, utility = self._minimize(new_board, alpha, beta, rival_piece)
-            
-            # Updating to max values.
+
+            # Updating child and utility value if found a better one.
             if utility > max_utility:
                 max_child, max_utility = child, utility
 
-            # Prunes branch.
+            # Pruning if beta is less than the max utility found.
             if max_utility >= beta:
                 break
             
             # Updating alpha.
             alpha = max(alpha, max_utility)
-        
+
         return max_child, max_utility
 
+    def _minimize(self, board: Board, alpha: float, beta: float, rival_piece: str):
+        """
+            Makes the plays that minimize the chances of winning to the rival.
 
-    def _minimize(self, board: Board, alpha: int, beta: int, rival_piece: str):
-        
-        # Verifying if player won.
+            Inputs:
+                    board (board): instance of the current board.
+                    alpha (int): value that represents the best score on that branch.
+                    beta (int): value that represents the worst score on that branch.
+                    rival_piece (str): rival piece.
+            Outputs:
+                    min_child (tuple(int, int)): coordinates of the play that minimizes the chances of winning.
+                    min_utility (int): branch value.
+        """
+        # Checking if the current state is a tie or one of the players won it.
         if board.player_won(self.__piece):
             return None, 9999
-        # Verifying if rival won.
         elif board.player_won(rival_piece):
             return None, -9999
-        # Verifying if game was a tie.
         elif board.tie():
-            return 0
-        
+            return None, 0
+
+        # Setting a place holder for the best child and its utility.
         min_child, min_utility = None, np.inf
 
-        # Creating a chields.
-        for child in PlayerTemplate._available_moves(board):
-            new_board = copy.deepcopy(board)
-            new_board.place_piece(child, self.__piece)
+        # Obtaining available moves.
+        moves = self._available_moves(board.get_board())
+        if not moves:
+            return None, 0
 
-            _, utility = self._maximize(new_board, alpha, beta, rival_piece)
+        # Exploring each move.
+        for child in moves:
+            new_board = copy.deepcopy(board)
+            new_board.place_piece(child, rival_piece)
             
-            # Updating to max values.
+            # Calling Min to keep exploring the branch.
+            _, utility = self._maximize(new_board, alpha, beta, rival_piece)
+
+            # Updating child and utility value if found a better one.
             if utility < min_utility:
                 min_child, min_utility = child, utility
 
-            # Prunes branch.
+            # Pruning if alpha is greater than the max utility found.
             if min_utility <= alpha:
                 break
             
-            # Updating alpha.
-            alpha = min(alpha, min_utility)
-        
+            # Updating beta.
+            beta = min(beta, min_utility)
+
         return min_child, min_utility
 
     def make_move(self, board: Board) -> Tuple[int, int]:
-        # Selecting rival piece.
+        """
+            Chooses the move to make based in a greedy approach.
+
+            Inputs:
+                board(Board): current game board.
+            Returns:
+                (tuple) coordinates to place the piece. 
+        """
         rival_piece = 'X' if self.__piece == 'O' else 'O'
 
-        child, _ = self._maximize(board, - np.inf, np.inf, rival_piece)
+        child, _ = self._maximize(board, -np.inf, np.inf, rival_piece)
+
+        if child is None:
+            raise Exception("No valid moves available.")
 
         return child
-    
-    def get_name(self) -> None:
+
+    def get_name(self) -> str:
+        """
+            Returns the player's name.
+        """
         return self.__name
-    
-    def get_piece(self) -> None:
-        self.__piece
+
+    def get_piece(self) -> str:
+        """
+            Returns the player's piece.
+        """
+        return self.__piece
+
 
 
 class GameManager:
@@ -291,7 +339,7 @@ class GameManager:
                 os.system('cls')
 
                 # Printing the board
-                print(f"Player {piece} turn.")
+                print(f"Player {player.get_name()} turn.")
                 print(board)
 
                 time.sleep(1)
