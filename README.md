@@ -71,6 +71,5 @@ To start the game, run the `main.py` file:
 ```bash
 python main.py
 ```
-https://github.com/user-attachments/assets/0930bb9e-76d8-480e-a795-eafbd1d78819
-
+![Demo](https://github.com/user-attachments/assets/c9c2516b-8963-4048-9a93-8d4ab2fd6625)
 
