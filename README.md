@@ -22,11 +22,11 @@ This repository contains an implementation of the Tic-Tac-Toe game with various 
 
 ## Project Structure
 
-├── agent.py # Contains all player classes (Random, Greedy, Min-Max, Human) 
-├── utils.py # Utility functions (e.g., checking win conditions, board printing) 
-├── main.py # The entry point to run the game 
-├── README.md # Project description and usage instructions 
-└── requirements.txt # Dependencies.
+├── agent.py # Contains all player classes (Random, Greedy, Min-Max, Human)   
+├── utils.py # Utility functions (e.g., checking win conditions, board printing)   
+├── main.py # The entry point to run the game   
+├── README.md # Project description and usage instructions   
+└── requirements.txt # Dependencies.   
 
 
 ## Installation
