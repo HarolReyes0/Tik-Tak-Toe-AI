@@ -165,7 +165,9 @@ class MinMax(PlayerTemplate):
         max_child, max_utility = None, - np.inf
 
         # Creating a chields.
-        for child in self._available_moves(board):
+        for child in PlayerTemplate._available_moves(board):
+            # Debugging
+            print(child)
             new_board = copy.deepcopy(board)
             new_board.place_piece(child, self.__piece)
 
@@ -200,7 +202,7 @@ class MinMax(PlayerTemplate):
         min_child, min_utility = None, np.inf
 
         # Creating a chields.
-        for child in self._available_moves(board):
+        for child in PlayerTemplate._available_moves(board):
             new_board = copy.deepcopy(board)
             new_board.place_piece(child, self.__piece)
 
